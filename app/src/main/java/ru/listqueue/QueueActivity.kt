@@ -1,22 +1,16 @@
 package ru.listqueue
 
-import android.content.Intent
-import android.graphics.Color
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.support.v7.app.AlertDialog
 import android.support.v7.widget.LinearLayoutManager
 import android.support.v7.widget.RecyclerView
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
-import android.widget.Adapter
-import android.widget.ArrayAdapter
-import android.widget.ListAdapter
 import android.widget.ListView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
-import kotlinx.android.synthetic.main.activity_list.*
 import kotlinx.android.synthetic.main.activity_queue.*
 
 class QueueActivity : AppCompatActivity() {
@@ -49,6 +43,11 @@ class QueueActivity : AppCompatActivity() {
         supportActionBar?.title = intent.getStringExtra("title")
 
         initRecyclerView(R.id.recyclerView_queue)
+
+        swipeContainer.setOnRefreshListener {
+            recyclerView_queue.adapter?.notifyDataSetChanged()
+            swipeContainer.isRefreshing = false
+        }
     }
 
     private fun initRecyclerView(id: Int) {
@@ -58,14 +57,23 @@ class QueueActivity : AppCompatActivity() {
         val list = arrayListOf(
             "Денис Графов", "Илья Сергеев", "Дмитрий Ахриреев", "Елена Сидорина",
             "Евгения Рязанова", "Анастасия Чуприна", "Михаил Косенков", "Малик Хираев", "Алексей Залата",
-            "Александр Купцов", "Алексей Медведев", "Алексей Навальный", "Александр Пистолетов")
+            "Александр Купцов", "Алексей Медведев", "Алексей Навальный", "Александр Пистолетов"
+        )
 
         for (mem in list) {
             members.add(Member(mem))
         }
 
         val adapter = QueueRecyclerViewAdapter(members) {
-            Log.d("Click", it.name)
+            val alertDialog = AlertDialog.Builder(this)
+            val action = if (it.followed) "Перестать" else "Начать"
+            alertDialog.setTitle("$action следить за ${it.name}?")
+            alertDialog.setPositiveButton(android.R.string.yes) { dialog, which ->
+                it.followed = !it.followed
+                recyclerView_queue.adapter?.notifyDataSetChanged()
+            }
+            alertDialog.setNegativeButton(android.R.string.no) { dialog, which -> }
+            alertDialog.show()
         }
 
         recyclerView_queue.adapter = adapter

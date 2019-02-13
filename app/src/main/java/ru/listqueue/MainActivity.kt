@@ -46,7 +46,7 @@ class MainActivity : AppCompatActivity() {
                         alertDialog.setPositiveButton(android.R.string.yes) { dialog, which ->
                             signUp(view, email, password)
                         }
-                        alertDialog.setNegativeButton(android.R.string.no) {dialog, which -> }
+                        alertDialog.setNegativeButton(android.R.string.no) { dialog, which -> }
                         alertDialog.show()
                     }
                 })
